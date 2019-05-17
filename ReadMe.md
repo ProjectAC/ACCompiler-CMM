@@ -15,6 +15,8 @@
 
 ## 数据结构：
 
+### AST节点基类
+
 ```
 class ASTBase
 {
@@ -22,8 +24,16 @@ public:
     virtual void eval(State &state);    // 执行本节点对应的代码，并打印过程（用于调试）
     virtual Type getType();             // 推导节点的类型
     virtual void build(ostream &out);   // 生成本节点对应的代码并输出到流
-
-protected:
-    vector<ASTBase> children;           // 子节点（有序列表）
 };
 ```
+
+### 派生一个子类
+
+所有的节点类型通过派生ASTBase类来区分。注意，类别不要分的太过于详细，以免过度封装。  
+定义以下类型的节点（格式为 功能 类名）：
+- 定义 Def
+- 赋值 Set
+- 运算 Expr
+- 分支 If
+- 循环 For、While、DoWhile
+- 预行 Prep
