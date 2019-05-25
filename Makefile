@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -O2
 
-ansicParser: Debug/essentials.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/ansicParser.o Debug/testParser.o
+ansicParser: Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/testParser.o
 	$(CC) -o Debug/parser Debug/essentials.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/ansicParser.o Debug/testParser.o -lfl -lm
 
 Debug/essentials.o: Essentials/essentials.c
