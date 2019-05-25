@@ -10,6 +10,11 @@ enum class UnaryType
     GET_VAL,        // &
     ADD,            // ++
     SUB,            // --
+    MINUS,          // -
+    NOT,            // !
+    BW_NOT,         // ~
+    SIZEOF,         // sizeof
+    PARSE,          // (type)
 };
 
 class ASTUnary : ASTBase
@@ -24,9 +29,11 @@ public:
     void Generate(std::vector<Instruction> &instructions, Context &context) const override;
 
 protected:
+    DataType evalType(const UnaryType &ut, const ASTBase const * o0);
+
     // 单目运算符有一个操作数
     const ASTBase const * o0;
-    DataType type;
+    const DataType type;
 };
 
 NAMESPACE_END

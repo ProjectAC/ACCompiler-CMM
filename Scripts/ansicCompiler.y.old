@@ -1,0 +1,914 @@
+%{
+#include <cstdlib>
+#include <cstdio>
+#include <string>
+#include "tree.h"
+#include "block.h"
+using namespace std;
+
+extern char *yytext;
+extern int column;
+extern FILE * yyin;
+extern FILE * yyout;
+GrammarTree *root;
+extern int yylineno;
+
+int yylex(void);
+void yyerror(const char*); 
+%}
+
+%union{
+	struct GrammarTree* gt;
+}
+
+%token <gt> IDENTIFIER CONSTANT STRING_LITERAL SIZEOF CONSTANT_INT CONSTANT_DOUBLE
+%token <gt> PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
+%token <gt> AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
+%token <gt> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+%token <gt> XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%token TYPEDEF EXTERN STATIC AUTO REGISTER
+%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID BOOL
+%token STRUCT UNION ENUM ELLIPSIS
+%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+%token <gt> TRUE FALSE
+%token <gt> ';' ',' ':' '=' '[' ']' '.' '&' '!' '~' '-' '+' '*' '/' '%' '<' '>' '^' '|' '?' '{' '}' '(' ')'
+
+
+%type <gt> primary_expression postfix_expression argument_expression_list unary_expression unary_operator
+%type <gt> cast_expression multiplicative_expression additive_expression shift_expression relational_expression equality_expression
+%type <gt> and_expression exclusive_or_expression inclusive_or_expression logical_and_expression logical_or_expression
+%type <gt> conditional_expression
+%type <gt> assignment_expression assignment_operator expression
+%type <gt> constant_expression
+%type <gt> declaration declaration_specifiers init_declarator_list init_declarator type_specifier storage_class_specifier
+%type <gt> struct_or_union_specifier struct_or_union struct_declaration_list struct_declaration specifier_qualifier_list struct_declarator_list struct_declarator
+%type <gt> enum_specifier enumerator_list enumerator type_qualifier
+%type <gt> declarator 
+%type <gt> direct_declarator pointer type_qualifier_list
+%type <gt> parameter_type_list parameter_list parameter_declaration identifier_list
+%type <gt> type_name abstract_declarator direct_abstract_declarator initializer initializer_list 
+%type <gt> expression_statement statement labeled_statement compound_statement declaration_list statement_list expression_statement
+%type <gt> selection_statement iteration_statement jump_statement translation_unit external_declaration function_definition
+
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+
+%%
+
+Program: 
+	translation_unit {
+		root = createTree("Program",1,$1);
+	}
+	;
+
+primary_expression:
+	  IDENTIFIER {
+		$$ = createTree("primary_expression",1,$1);
+	}
+	| TRUE {
+		$$ = createTree("primary_expression",1,$1);
+	}
+	| FALSE {
+		$$ = createTree("primary_expression",1,$1);
+	}
+	| CONSTANT_INT {
+		$$ = createTree("primary_expression",1,$1);		
+	}
+	| CONSTANT_DOUBLE {
+		$$ = createTree("primary_expression",1,$1);
+	}
+	| '(' expression ')'{
+		$$ = createTree("primary_expression",3,$1,$2,$3);
+	}
+	;
+
+postfix_expression:
+      primary_expression{
+		$$ = createTree("postfix_expression",1,$1);
+	}
+	| postfix_expression '[' expression ']'{
+		$$ = createTree("postfix_expression",4,$1,$2,$3,$4);
+	}
+	| postfix_expression '(' ')'{
+		$$ = createTree("postfix_expression",3,$1,$2,$3);
+	}
+	| postfix_expression '(' argument_expression_list ')'{
+		$$ = createTree("postfix_expression",4,$1,$2,$3,$4);
+	}
+	| postfix_expression '.' IDENTIFIER
+	{
+		$$ = createTree("postfix_expression",3,$1,$2,$3);
+	}
+	| postfix_expression PTR_OP IDENTIFIER{
+		$$ = createTree("postfix_expression",3,$1,$2,$3);
+	}
+	| postfix_expression INC_OP{
+		$$ = createTree("postfix_expression",2,$1,$2);
+	}
+	| postfix_expression DEC_OP{
+		$$ = createTree("postfix_expression",2,$1,$2);
+	}
+	;
+
+argument_expression_list:
+      assignment_expression{
+		$$ = createTree("argument_expression_list",1,$1);
+	}
+	| argument_expression_list ',' assignment_expression{
+		$$ = createTree("argument_expression_list",3,$1,$2,$3);
+	}
+	;
+
+unary_expression:
+      postfix_expression{
+		$$ = createTree("unary_expression",1,$1);
+	}
+	| INC_OP unary_expression{
+		$$ = createTree("unary_expression",2,$1,$2);
+	}
+	| DEC_OP unary_expression{
+		$$ = createTree("unary_expression",2,$1,$2);
+	}
+	| unary_operator cast_expression{
+		$$ = createTree("unary_expression",2,$1,$2);
+	}
+	| SIZEOF unary_expression{
+		$$ = createTree("unary_expression",2,$1,$2);
+	}
+	| SIZEOF '(' type_name ')'{
+		$$ = createTree("unary_expression",4,$1,$2,$3,$4);
+	}
+	;
+
+unary_operator:
+      '&'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	| '*'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	| '+'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	| '-'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	| '~'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	| '!'{
+		$$ = createTree("unary_operator",1,$1);
+	}
+	;
+
+cast_expression:
+      unary_expression{
+		$$ = createTree("cast_expression",1,$1);
+	}
+	| '(' type_name ')' cast_expression{
+		$$ = createTree("cast_expression",4,$1,$2,$3,$4);
+	}
+	;
+
+multiplicative_expression:
+      cast_expression{
+		$$ = createTree("multiplicative_expression",1,$1);
+	}
+	| multiplicative_expression '*' cast_expression{
+		$$ = createTree("multiplicative_expression",3,$1,$2,$3);
+	}
+	| multiplicative_expression '/' cast_expression{
+		$$ = createTree("multiplicative_expression",3,$1,$2,$3);
+	}
+	| multiplicative_expression '%' cast_expression{
+		$$ = createTree("multiplicative_expression",3,$1,$2,$3);
+	}
+	;
+
+additive_expression:
+      multiplicative_expression{
+		$$ = createTree("additive_expression",1,$1);
+	}
+	| additive_expression '+' multiplicative_expression{
+		$$ = createTree("additive_expression",3,$1,$2,$3);
+	}
+	| additive_expression '-' multiplicative_expression{
+		$$ = createTree("additive_expression",3,$1,$2,$3);
+	}
+	;
+
+shift_expression:
+      additive_expression{
+		$$ = createTree("shift_expression",1,$1);
+	}
+	| shift_expression LEFT_OP additive_expression{
+		$$ = createTree("shift_expression",3,$1,$2,$3);
+	}
+	| shift_expression RIGHT_OP additive_expression{
+		$$ = createTree("shift_expression",3,$1,$2,$3);
+	}
+	;
+
+relational_expression:
+      shift_expression{
+		$$ = createTree("relational_expression",1,$1);
+	}
+	| relational_expression '<' shift_expression{
+		$$ = createTree("relational_expression",3,$1,$2,$3);
+	}
+	| relational_expression '>' shift_expression{
+		$$ = createTree("relational_expression",3,$1,$2,$3);
+	}
+	| relational_expression LE_OP shift_expression{
+		$$ = createTree("relational_expression",3,$1,$2,$3);
+	}
+	| relational_expression GE_OP shift_expression{
+		$$ = createTree("relational_expression",3,$1,$2,$3);
+	}
+	;
+
+equality_expression:
+      relational_expression{
+		$$ = createTree("equality_expression",1,$1);
+	}
+	| equality_expression EQ_OP relational_expression{
+		$$ = createTree("equality_expression",3,$1,$2,$3);
+	}
+	| equality_expression NE_OP relational_expression{
+		$$ = createTree("equality_expression",3,$1,$2,$3);
+	}
+	;
+
+and_expression:
+      equality_expression{
+		$$ = createTree("and_expression",1,$1);
+	}
+	| and_expression '&' equality_expression{
+		$$ = createTree("and_expression",3,$1,$2,$3);
+	}
+	;
+
+exclusive_or_expression:
+      and_expression{
+		$$ = createTree("exclusive_or_expression",1,$1);
+	}
+	| exclusive_or_expression '^' and_expression{
+		$$ = createTree("exclusive_or_expression",3,$1,$2,$3);
+	}
+	;
+
+inclusive_or_expression:
+      exclusive_or_expression{
+		$$ = createTree("inclusive_or_expression",1,$1);
+	}
+	| inclusive_or_expression '|' exclusive_or_expression{
+		$$ = createTree("inclusive_or_expression",3,$1,$2,$3);
+	}
+	;
+
+logical_and_expression:
+      inclusive_or_expression{
+		$$ = createTree("logical_and_expression",1,$1);
+	}
+	| logical_and_expression AND_OP inclusive_or_expression{
+		$$ = createTree("logical_and_expression",3,$1,$2,$3);
+	}
+    ;
+    
+logical_or_expression:
+      logical_and_expression{
+		$$ = createTree("logical_or_expression",1,$1);
+	}
+	| logical_or_expression OR_OP logical_and_expression{
+		$$ = createTree("logical_or_expression",3,$1,$2,$3);
+	}
+	;
+
+conditional_expression:
+      logical_or_expression{
+		$$ = createTree("conditional_expression",1,$1);
+	}
+	| logical_or_expression '?' expression ':' conditional_expression{
+		$$ = createTree("conditional_expression",5,$1,$2,$3,$4,$5);
+	}
+	;
+
+assignment_expression:
+      conditional_expression{
+		$$ = createTree("assignment_expression",1,$1);
+	}
+	| unary_expression assignment_operator assignment_expression{
+		$$ = createTree("assignment_expression",3,$1,$2,$3);
+	}
+	;
+
+assignment_operator:
+      '='{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| MUL_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| DIV_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| MOD_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| ADD_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| SUB_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| LEFT_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| RIGHT_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| AND_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| XOR_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	| OR_ASSIGN{
+		$$ = createTree("assignment_operator",1,$1);
+	}
+	;
+
+expression:
+      assignment_expression{
+		$$ = createTree("expression",1,$1);
+	}
+	| expression ',' assignment_expression{
+		$$ = createTree("expression",3,$1,$2,$3);
+	}
+	;
+
+constant_expression:
+      conditional_expression{
+		$$ = createTree("constant_expression",1,$1);
+	}
+	;
+
+declaration:
+      declaration_specifiers ';'{
+		$$ = createTree("declaration",2,$1,$2);
+	}
+	| declaration_specifiers init_declarator_list ';'{
+		$$ = createTree("declaration",3,$1,$2,$3);
+	}
+	;
+
+declaration_specifiers:
+      storage_class_specifier{
+		$$ = createTree("declaration_specifiers",1,$1);
+	}
+	| storage_class_specifier declaration_specifiers{
+		$$ = createTree("declaration_specifiers",2,$1,$2);
+	}
+	| type_specifier{
+		$$ = createTree("declaration_specifiers",1,$1);
+	}
+	| type_specifier declaration_specifiers{
+		$$ = createTree("declaration_specifiers",2,$1,$2);
+	}
+	| type_qualifier{
+		$$ = createTree("declaration_specifiers",1,$1);
+	}
+	| type_qualifier declaration_specifiers{
+		$$ = createTree("declaration_specifiers",2,$1,$2);
+	}
+	;
+
+init_declarator_list:
+      init_declarator{
+		$$ = createTree("init_declarator_list",1,$1);
+	}
+	| init_declarator_list ',' init_declarator{
+		$$ = createTree("init_declarator_list",3,$1,$2,$3);
+	}
+	;
+
+init_declarator:
+      declarator{
+		$$ = createTree("init_declarator",1,$1);
+	}
+	| declarator '=' initializer{
+		$$ = createTree("init_declarator",3,$1,$2,$3);
+	}
+	;
+
+storage_class_specifier:
+      TYPEDEF{
+		$$ = createTree("storage_class_specifier",1,$1);
+	}
+	| EXTERN{
+		$$ = createTree("storage_class_specifier",1,$1);
+	}
+	| STATIC{
+		$$ = createTree("storage_class_specifier",1,$1);
+	}
+	| AUTO{
+		$$ = createTree("storage_class_specifier",1,$1);
+	}
+	| REGISTER{
+		$$ = createTree("storage_class_specifier",1,$1);
+	}
+	;
+
+type_specifier:
+      VOID{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| CHAR{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| SHORT{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| INT{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| LONG{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| FLOAT{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| DOUBLE{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| SIGNED{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| UNSIGNED{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| struct_or_union_specifier{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| enum_specifier{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| TYPE_NAME{
+		$$ = createTree("type_specifier",1,$1);
+	}
+	| BOOL {
+		$$ = createTree("type_specifier",1,$1);
+	}
+	;
+
+struct_or_union_specifier:
+      struct_or_union IDENTIFIER '{' struct_declaration_list '}'{
+		$$ = createTree("type_specifier",5,$1,$2,$3,$4,$5);
+	}
+	| struct_or_union '{' struct_declaration_list '}'{
+		$$ = createTree("type_specifier",4,$1,$2,$3,$4);
+	}
+	| struct_or_union IDENTIFIER{
+		$$ = createTree("type_specifier",2,$1,$2);
+	}
+	;
+
+struct_or_union:
+      STRUCT{
+		$$ = createTree("struct_or_union",1,$1);
+	}
+	| UNION{
+		$$ = createTree("struct_or_union",1,$1);
+	}
+	;
+
+struct_declaration_list:
+      struct_declaration{
+		$$ = createTree("struct_declaration_list",1,$1);
+	}
+	| struct_declaration_list struct_declaration{
+		$$ = createTree("struct_declaration_list",2,$1,$2);
+	}
+	;
+
+struct_declaration:
+      specifier_qualifier_list struct_declarator_list ';'{
+		$$ = createTree("struct_declaration",3,$1,$2,$3);
+	}
+	;
+
+specifier_qualifier_list:
+      type_specifier specifier_qualifier_list{
+		$$ = createTree("specifier_qualifier_list",2,$1,$2);
+	}
+	| type_specifier{
+		$$ = createTree("specifier_qualifier_list",1,$1);
+	}
+	| type_qualifier specifier_qualifier_list{
+		$$ = createTree("specifier_qualifier_list",2,$1,$2);
+	}
+	| type_qualifier{
+		$$ = createTree("specifier_qualifier_list",1,$1);
+	}
+	;
+
+struct_declarator_list:
+      struct_declarator{
+		$$ = createTree("struct_declarator_list",1,$1);
+	}
+	| struct_declarator_list ',' struct_declarator{
+		$$ = createTree("struct_declarator_list",3,$1,$2,$3);
+	}
+	;
+
+struct_declarator:
+      declarator{
+		$$ = createTree("struct_declarator",1,$1);
+	}
+	| ':' constant_expression{
+		$$ = createTree("struct_declarator",2,$1,$2);
+	}
+	| declarator ':' constant_expression{
+		$$ = createTree("struct_declarator",3,$1,$2,$3);
+	}
+	;
+
+enum_specifier:
+      ENUM '{' enumerator_list '}'{
+		$$ = createTree("enum_specifier",4,$1,$2,$3,$4);
+	}
+	| ENUM IDENTIFIER '{' enumerator_list '}'{
+		$$ = createTree("enum_specifier",5,$1,$2,$3,$4,$5);
+	}
+	| ENUM IDENTIFIER
+	{
+		$$ = createTree("enum_specifier",2,$1,$2);
+	}
+	;
+
+enumerator_list:
+      enumerator{
+		$$ = createTree("enumerator_list",1,$1);
+	}
+	| enumerator_list ',' enumerator{
+		$$ = createTree("enumerator_list",3,$1,$2,$3);
+	}
+	;
+
+enumerator:
+      IDENTIFIER{
+		$$ = createTree("enumerator",1,$1);
+	}
+	| IDENTIFIER '=' constant_expression{
+		$$ = createTree("enumerator",3,$1,$2,$3);
+	}
+	;
+
+type_qualifier:
+      CONST{
+		$$ = createTree("type_qualifier",1,$1);
+	}
+	| VOLATILE{
+		$$ = createTree("type_qualifier",1,$1);
+	}
+	;
+
+declarator:
+      pointer direct_declarator{
+		$$ = createTree("declarator",2,$1,$2);
+	}
+	| direct_declarator{
+		$$ = createTree("declarator",1,$1);
+	}
+	;
+
+direct_declarator:
+      IDENTIFIER{
+		$$ = createTree("direct_declarator",1,$1);
+	}
+	| '(' declarator ')'{
+		$$ = createTree("direct_declarator",3,$1,$2,$3);
+	}
+	| direct_declarator '[' constant_expression ']'{
+		$$ = createTree("direct_declarator",4,$1,$2,$3,$4);
+	}
+	| direct_declarator '[' ']'{
+		$$ = createTree("direct_declarator",3,$1,$2,$3);
+	}
+	| direct_declarator '(' parameter_type_list ')''{
+		$$ = createTree("direct_declarator",4,$1,$2,$3,$4);
+	}
+	| direct_declarator '(' identifier_list ')''{
+		$$ = createTree("direct_declarator",4,$1,$2,$3,$4);
+	}
+	| direct_declarator '(' ')'{
+		$$ = createTree("direct_declarator",3,$1,$2,$3);
+	}
+	;
+
+pointer:
+      '*'{
+		$$ = createTree("pointer",1,$1);
+	}
+	| '*' type_qualifier_list{
+		$$ = createTree("pointer",2,$1,$2);
+	}
+	| '*' pointer{
+		$$ = createTree("pointer",2,$1,$2);
+	}
+	| '*' type_qualifier_list pointer{
+		$$ = createTree("pointer",3,$1,$2,$3);
+	}
+	;
+
+type_qualifier_list:
+      type_qualifier{
+		$$ = createTree("type_qualifier_list",1,$1);
+	}
+	| type_qualifier_list type_qualifier{
+		$$ = createTree("type_qualifier_list",2,$1,$2);
+	}
+	;
+
+
+parameter_type_list:
+      parameter_list{
+		$$ = createTree("parameter_type_list",1,$1);
+	}
+	| parameter_list ',' ELLIPSIS{
+		$$ = createTree("parameter_type_list",3,$1,$2,$3);
+	}
+	;
+
+parameter_list:
+      parameter_declaration{
+		$$ = createTree("parameter_list",1,$1);
+	}
+	| parameter_list ',' parameter_declaration{
+		$$ = createTree("parameter_list",3,$1,$2,$3);
+	}
+	;
+
+parameter_declaration:
+      declaration_specifiers declarator{
+		$$ = createTree("parameter_declaration",2,$1,$2);
+	}
+	| declaration_specifiers abstract_declarator{
+		$$ = createTree("parameter_declaration",2,$1,$2);
+	}
+	| declaration_specifiers{
+		$$ = createTree("parameter_declaration",1,$1);
+	}
+	;
+
+identifier_list:
+      IDENTIFIER{
+		$$ = createTree("identifier_list",1,$1);
+	}
+	| identifier_list ',' IDENTIFIER{
+		$$ = createTree("identifier_list",3,$1,$2,$3);
+	}
+	;
+
+type_name:
+      specifier_qualifier_list{
+		$$ = createTree("type_name",1,$1);
+	}
+	| specifier_qualifier_list abstract_declarator{
+		$$ = createTree("type_name",2,$1,$2);
+	}
+	;
+
+abstract_declarator:
+      pointer{
+		$$ = createTree("abstract_declarator",1,$1);
+	}
+	| direct_abstract_declarator{
+		$$ = createTree("abstract_declarator",1,$1);
+	}
+	| pointer direct_abstract_declarator{
+		$$ = createTree("abstract_declarator",2,$1,$2);
+	}
+	;
+
+direct_abstract_declarator:
+      '(' abstract_declarator ')'{
+		$$ = createTree("direct_abstract_declarator",3,$1,$2,$3);
+	}
+	| '[' ']'{
+		$$ = createTree("direct_abstract_declarator",2,$1,$2);
+	}
+	| '[' constant_expression ']'{
+		$$ = createTree("direct_abstract_declarator",3,$1,$2,$3);
+	}
+	| direct_abstract_declarator '[' ']'{
+		$$ = createTree("direct_abstract_declarator",3,$1,$2,$3);
+	}
+	| direct_abstract_declarator '[' constant_expression ']'{
+		$$ = createTree("direct_abstract_declarator",4,$1,$2,$3,$4);
+	}
+	| '(' ')'{
+		$$ = createTree("direct_abstract_declarator",2,$1,$2);
+	}
+	| '(' parameter_type_list ')'{
+		$$ = createTree("direct_abstract_declarator",3,$1,$2,$3);
+	}
+	| direct_abstract_declarator '(' ')'{
+		$$ = createTree("direct_abstract_declarator",3,$1,$2,$3);
+	}
+	| direct_abstract_declarator '(' parameter_type_list ')'{
+		$$ = createTree("direct_abstract_declarator",4,$1,$2,$3,$4);
+	}
+	;
+
+initializer:
+      assignment_expression{
+		$$ = createTree("initializer",1,$1);
+	}
+	| '{' initializer_list '}'{
+		$$ = createTree("initializer",3,$1,$2,$3);
+	}
+	| '{' initializer_list ',' '}'{
+		$$ = createTree("initializer",4,$1,$2,$3,$4);
+	}
+	;
+
+initializer_list:
+      initializer{
+		$$ = createTree("initializer_list",1,$1);
+	}
+	| initializer_list ',' initializer{
+		$$ = createTree("initializer_list",3,$1,$2,$3);
+	}
+	;
+
+statement:
+      labeled_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	| compound_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	| expression_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	| selection_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	| iteration_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	| jump_statement{
+		$$ = createTree("statement",1,$1);
+	}
+	;
+
+labeled_statement:
+      IDENTIFIER ':' statement{
+		$$ = createTree("labeled_statement",3,$1,$2,$3);
+	}
+	| CASE constant_expression ':' statement{
+		$$ = createTree("labeled_statement",4,$1,$2,$3,$4);
+	}
+	| DEFAULT ':' statement{
+		$$ = createTree("labeled_statement",3,$1,$2,$3);
+	}
+	;
+
+compound_statement:
+      '{' '}'{
+		$$ = createTree("compound_statement",2,$1,$2);
+	}
+	| '{' statement_list '}'{
+		$$ = createTree("compound_statement",3,$1,$2,$3);
+	}
+	| '{' declaration_list '}'{
+		$$ = createTree("compound_statement",3,$1,$2,$3);
+	}
+	| '{' declaration_list statement_list '}'{
+		$$ = createTree("compound_statement",4,$1,$2,$3,$4);
+	}
+	;
+
+declaration_list:
+      declaration{
+		$$ = createTree("declaration_list",1,$1);
+	}
+	| declaration_list declaration{
+		$$ = createTree("declaration_list",2,$1,$2);
+	}
+	;
+
+statement_list:
+      statement{
+		$$ = createTree("statement_list",1,$1);
+	}
+	| statement_list statement{
+		$$ = createTree("statement_list",2,$1,$2);
+	}
+	;
+
+expression_statement:
+      ';'{
+		$$ = createTree("expression_statement",1,$1);
+	}
+	| expression ';'{
+		$$ = createTree("expression_statement",2,$1,$2);
+	}
+	;
+
+selection_statement:
+      IF '(' expression ')' statement{
+		$$ = createTree("selection_statement",5,$1,$2,$3,$4,$5);
+	}
+	| IF '(' expression ')' statement ELSE statement{
+		$$ = createTree("selection_statement",7,$1,$2,$3,$4,$5,$6,$7);
+	}
+	| SWITCH '(' expression ')' statement{
+		$$ = createTree("selection_statement",5,$1,$2,$3,$4,$5);
+	}
+	;
+
+iteration_statement:
+      WHILE '(' expression ')' statement{
+		$$ = createTree("iteration_statement",5,$1,$2,$3,$4,$5);
+	}
+	| DO statement WHILE '(' expression ')' ';'{
+		$$ = createTree("iteration_statement",7,$1,$2,$3,$4,$5,$6,$7);
+	}
+	| FOR '(' expression_statement expression_statement ')' statement{
+		$$ = createTree("iteration_statement",6,$1,$2,$3,$4,$5,$6);
+	}
+	| FOR '(' expression_statement expression_statement expression ')' statement{
+		$$ = createTree("iteration_statement",7,$1,$2,$3,$4,$5,$6,$7);
+	}
+	;
+
+jump_statement:
+      GOTO IDENTIFIER ';'{
+		$$ = createTree("jump_statement",2,$1,$2);
+	}
+	| CONTINUE ';'{
+		$$ = createTree("jump_statement",2,$1,$2);
+	}
+	| BREAK ';'{
+		$$ = createTree("jump_statement",2,$1,$2);
+	}
+	| RETURN ';'{
+		$$ = createTree("jump_statement",2,$1,$2);
+	}
+	| RETURN expression ';'{
+		$$ = createTree("jump_statement",3,$1,$2,$3);
+	}
+	;
+
+translation_unit:
+      external_declaration{
+		$$ = createTree("translation_unit",1,$1);
+	}
+	| translation_unit external_declaration{
+		$$ = createTree("translation_unit",2,$1,$2);
+	}
+	;
+
+external_declaration:
+      function_definition{
+		$$ = createTree("external_declaration",1,$1);
+	}
+	| declaration{
+		$$ = createTree("external_declaration",1,$1);
+	}
+	;
+
+function_definition:
+      declaration_specifiers declarator declaration_list compound_statement{
+		$$ = createTree("function_definition",4,$1,$2,$3,$4);
+	}
+	| declaration_specifiers declarator compound_statement{
+		$$ = createTree("function_definition",3,$1,$2,$3);
+	}
+	| declarator declaration_list compound_statement{
+		$$ = createTree("function_definition",3,$1,$2,$3);
+	}
+	| declarator compound_statement{
+		$$ = createTree("function_definition",2,$1,$2);
+	}
+	;
+
+%%
+
+void yyerror(char const *s)
+{
+	fflush(stdout);
+	printf("\n%*s\n%*s\n", column, "^", column, s);
+}
+
+int main(int argc,char* argv[])
+{
+	yyin = fopen(argv[1],"r");
+	yyparse();
+	printf("\n");
+	eval(root,0);	
+	fclose(yyin);
+	return 0;
+}
