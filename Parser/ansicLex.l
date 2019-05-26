@@ -76,7 +76,6 @@ L?'(\\.|[^\\'\n])+'			{ count(); return(CONSTANT); }
 0[xX]{H}+{P}{FS}?			{ count(); return(CONSTANT); }
 0[xX]{H}*"."{H}+{P}?{FS}?   { count(); return(CONSTANT); }
 0[xX]{H}+"."{H}*{P}?{FS}?   { count(); return(CONSTANT); }
-L?\"(\\.|[^\\"])*\"			{ count(); yylval.gt = createLeaf(L_STRING_LITERAL,yylineno);	return(STRING_LITERAL); }
 L?\"(\\.|[^\\"\n])*\"		{ count(); yylval.gt = createLeaf(L_STRING_LITERAL,yylineno);	return(STRING_LITERAL); }
 
 "..."			{ count(); return(ELLIPSIS); }
@@ -133,42 +132,48 @@ L?\"(\\.|[^\\"\n])*\"		{ count(); yylval.gt = createLeaf(L_STRING_LITERAL,yyline
 
 int yywrap()
 {
-	return 1;
+    return 1;
 }
 
-void comment()
-{
-	column = 0;
-	char c, prev = 0;
-	
-	while ((c = getchar()) != EOF)      
-	{
-		if (c == '/' && prev == '*')
-			return;
-		prev = c;
-	}
-	printf("unterminated comment");
+void comment() 
+{ 
+    char c, c1; 
+    printf("/*");
+    while(1)
+    {
+        while ((c = input()) != '*' && c != 0) 
+            putchar(c); 
+        if ((c1 = input()) != '/' && c != 0) 
+            unput(c1);
+        else
+            break;
+    }
+    if (c != 0) 
+    {
+        putchar(c);
+        putchar(c1);
+    }
 }
 
 void count()
 {
-	int i;
+    int i;
 
-	for (i = 0; yytext[i] != '\0'; i++)
-		if (yytext[i] == '\n')
-			column = 0;
-		else if (yytext[i] == '\t')
-			column += 4 - (column % 4);
-		else
-			column++;
-	ECHO;
+    for (i = 0; yytext[i] != '\0'; i++)
+        if (yytext[i] == '\n')
+            column = 0;
+        else if (yytext[i] == '\t')
+            column += 4 - (column % 4);
+        else
+            column++;
+    ECHO;
 }
 
 /*
 int typeCheck()
 {
-	if (yytext == type_name)
-		return (TYPE_NAME);
-	return (IDENTIFIER);
+    if (yytext == type_name)
+        return (TYPE_NAME);
+    return (IDENTIFIER);
 }
 */

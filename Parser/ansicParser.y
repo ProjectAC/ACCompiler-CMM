@@ -819,7 +819,7 @@ expression_statement:
 	;
 
 selection_statement:
-      IF '(' expression ')' statement{
+      IF '(' expression ')' statement %prec LOWER_THAN_ELSE {
 		$$ = createTree(SELECTION_STATEMENT,5,$1,$2,$3,$4,$5);
 	}
 	| IF '(' expression ')' statement ELSE statement{
