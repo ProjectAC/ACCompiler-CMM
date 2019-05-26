@@ -1,8 +1,7 @@
 int main()
 {
-    int i, n = 0;
-    for (i = 1; i <= 10; i ++)
-        n += i;
+    char s[] = "Hello";
+    printf("%s", s);
 
     return 0;
 }

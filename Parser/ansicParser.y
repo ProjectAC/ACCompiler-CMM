@@ -75,6 +75,9 @@ primary_expression:
 	| CONSTANT_DOUBLE {
 		$$ = createTree(PRIMARY_EXPRESSION,1,$1);
 	}
+    | STRING_LITERAL {
+        $$ = createTree(PRIMARY_EXPRESSION,1,$1);
+    }
 	| '(' expression ')'{
 		$$ = createTree(PRIMARY_EXPRESSION,3,$1,$2,$3);
 	}
