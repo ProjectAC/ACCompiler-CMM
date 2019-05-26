@@ -1,6 +1,7 @@
 int main()
 {
-    char s[] = "Hello";
+    char s[] = "Hel\
+lo";
     printf("%s", s);
 
     /* Test */
