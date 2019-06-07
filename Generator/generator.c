@@ -1,9 +1,23 @@
 #include <stdio.h>
-#include "../Tree/tree.h"
+#include "generator.h"
+#include "context.h"
 
-static GrammarTree * (*generator[3000])(GrammarTree *root);
+static void (*generator[3000])(Context *context, GrammarTree *node);
 
-void generate(GrammarTree *root)
+Context *buildContext(FILE *fp)
 {
-    (*generator[root->type])(root);
+    Context *context = (Context *)malloc(sizeof(Context));
+    context->file = fp;
+    return context;
+}
+
+void generate(Context *context, GrammarTree *node)
+{
+    (*generator[node->type])(context, node);
+}
+
+void compile(FILE *fp, GrammarTree *root)
+{
+    Context *context = buildContext(fp);
+    generate(context, root);
 }

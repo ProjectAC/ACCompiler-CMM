@@ -45,6 +45,7 @@ GrammarTree* createLeaf(NodeType type, int line)
     node->id = ++id;
     node->line = line;
     node->child = NULL;
+    node->type = type;
     node->num = 0;
     if(node->type == L_CONSTANT_INT)
     {

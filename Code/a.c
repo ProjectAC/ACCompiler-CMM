@@ -1,10 +1,9 @@
 int main()
 {
-    char s[] = "Hel\
-lo";
-    printf("%s", s);
+    int a = 1, b = 2, c;
 
-    /* Test */
+    c = a + b;
+    printf("%d\n", c);
 
     return 0;
 }
