@@ -6,7 +6,7 @@ void genAdditiveExpression(Context *context, GrammarTree *node)
     // multiplicative_expression
     if (node->num == 1)
     {
-        return generate(context, node->child[0]);
+        generate(context, node->child[0]);
     }
     // additive_expression '+' multiplicative_expression
     // additive_expression '-' multiplicative_expression
