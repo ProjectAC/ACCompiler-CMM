@@ -7,6 +7,9 @@
 extern char *yytext;
 extern int yylineno;
 
+#define INT 1
+#define FLOAT 2
+
 typedef enum __NodeType {
     L_MIN = 1000,
     L_AUTO,
@@ -47,7 +50,7 @@ typedef enum __NodeType {
     L_CONSTANT_INT,
     L_CONSTANT_DOUBLE,
     L_STRING_LITERAL,
-    L_ASSIGN_RIGHT_,
+    L_ASSIGN_RIGHT,
     L_ASSIGN_LEFT,
     L_ASSIGN_ADD,
     L_ASSIGN_SUB,

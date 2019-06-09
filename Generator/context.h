@@ -6,6 +6,7 @@
 typedef struct __Context
 {
     FILE *file;
+    char *target;
     NodeType operation;
 } Context;
 

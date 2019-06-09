@@ -79,7 +79,7 @@ L?'(\\.|[^\\'\n])+'			{ count(); return(CONSTANT); }
 L?\"(\\(.|\n)|[^\\"\n])*\"		{ count(); yylval.gt = createLeaf(L_STRING_LITERAL,yylineno);	return(STRING_LITERAL); }
 
 "..."			{ count(); return(ELLIPSIS); }
-">>="			{ count(); yylval.gt = createLeaf(L_ASSIGN_RIGHT_,yylineno);	return(RIGHT_ASSIGN); }
+">>="			{ count(); yylval.gt = createLeaf(L_ASSIGN_RIGHT,yylineno);	return(RIGHT_ASSIGN); }
 "<<="			{ count(); yylval.gt = createLeaf(L_ASSIGN_LEFT,yylineno);		return(LEFT_ASSIGN); }
 "+="			{ count(); yylval.gt = createLeaf(L_ASSIGN_ADD,yylineno);		return(ADD_ASSIGN); }
 "-="			{ count(); yylval.gt = createLeaf(L_ASSIGN_SUB,yylineno);		return(SUB_ASSIGN); }
