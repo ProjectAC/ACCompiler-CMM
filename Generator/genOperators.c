@@ -92,6 +92,11 @@ void genConditionalExpression(Context *context, GrammarTree *node)
     }
 }
 
+void genOperator(Context *context, GrammarTree *node)
+{
+    context->operation = node->type;
+}
+
 void genBinaryOperation(Context *context, GrammarTree *node)
 {
     // multiplicative_expression
