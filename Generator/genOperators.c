@@ -55,7 +55,7 @@ void genAssignmentExpression(Context *context, GrammarTree *node)
         }
         else
         {
-            sprintf(instr, "%s %%eax, %s", context->operation, context->target);
+            sprintf(instr, "%s %%eax, %s", context->operation, context->dest);
             APPEND(instr);
         }
     }
@@ -116,7 +116,7 @@ void genBinaryOperation(Context *context, GrammarTree *node)
         }
         else
         {
-            sprintf(instr, "%s %%edx, %%eax", context->operation, context->target);
+            sprintf(instr, "%s %%edx, %%eax", context->operation, context->dest);
             APPEND(instr);
         }
     }
