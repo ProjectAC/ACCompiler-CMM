@@ -66,7 +66,7 @@ void genDirectDeclarator(Context *context, GrammarTree *node)
         // '(' declarator ')'
         // direct_declarator '[' ']'
         // direct_declarator '(' ')'
-        if (compare(node->child[1], '('))
+        if (isType(node->child[1], '('))
         {
             GENERATE(0);
         }

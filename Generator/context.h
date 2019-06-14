@@ -6,7 +6,7 @@
 typedef struct __Context
 {
     FILE *file;
-    char *target;
+    ValueType typeRegs[100];
     NodeType operation;
 } Context;
 

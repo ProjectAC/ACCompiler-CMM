@@ -4,6 +4,26 @@
 static char instr[1000];
 static char instructionString[2][3000][10];
 
+void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *node))
+{
+    generator[ASSIGNMENT_EXPRESSION] = genAssignmentExpression;
+    generator[CONDITIONAL_EXPRESSION] = genConditionalExpression;
+    generator[LOGICAL_OR_EXPRESSION] = genBinaryOperation;
+    generator[LOGICAL_AND_EXPRESSION] = genBinaryOperation;
+    generator[INCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
+    generator[EXCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
+    generator[AND_EXPRESSION] = genBinaryOperation;
+    //generator[EQUALITY_EXPRESSION] = genEqualityExpression;
+    //generator[RELATIONAL_EXPRESSION] = genRelationalExpression;
+    generator[SHIFT_EXPRESSION] = genBinaryOperation;
+    generator[ADDITIVE_EXPRESSION] = genBinaryOperation;
+    generator[MULTIPLICATIVE_EXPRESSION] = genBinaryOperation;
+    generator[CAST_EXPRESSION] = genCastExpression;
+    generator[UNARY_EXPRESSION] = genUnaryExpression;
+    generator[POSTFIX_EXPRESSION] = genPostfixExpression;
+    generator[PRIMARY_EXPRESSION] = genPrimaryExpression;
+}
+
 void initInstructionString()
 {
     strcpy(instructionString[INT][L_ASSIGN_RIGHT], "sarl");
@@ -37,6 +57,11 @@ void initInstructionString()
     strcpy(instructionString[FLOAT]['/'], "divss");
 }
 
+void genExpression(Context *context, GrammarTree *node)
+{
+
+}
+
 void genAssignmentExpression(Context *context, GrammarTree *node)
 {
     // conditional_expression
@@ -47,7 +72,7 @@ void genAssignmentExpression(Context *context, GrammarTree *node)
 	// unary_expression assignment_operator assignment_expression
     else if (node->num == 3)
     {
-        GENERATE(2);            // 获取右值（栈顶）
+        GENERATE(2);            // 获取右值
         GENERATE(1);            // 获取运算符，写入context
         GENERATE(0);            // 获取目标，写入context
         if (strcmp(instructionString[INT][context->operation], ""))  // error
@@ -92,11 +117,6 @@ void genConditionalExpression(Context *context, GrammarTree *node)
     }
 }
 
-void genOperator(Context *context, GrammarTree *node)
-{
-    context->operation = node->type;
-}
-
 void genBinaryOperation(Context *context, GrammarTree *node)
 {
     // multiplicative_expression
@@ -108,8 +128,10 @@ void genBinaryOperation(Context *context, GrammarTree *node)
     else if (node->num == 3)
     {
         GENERATE(2);                                // 右参数
+        VALUE();
         APPEND("movl %%eax, %%edx");                // 暂存在edx
         GENERATE(0);                                // 左参数
+        VALUE();
         GENERATE(1);                                // 获取运算符，写入context
         if (instructionString[context->operation][0] == 0)  // error
         {
@@ -123,4 +145,98 @@ void genBinaryOperation(Context *context, GrammarTree *node)
     else // error
     {
     }
+}
+
+void genCastExpression(Context *context, GrammarTree *node)
+{
+
+}
+
+void genUnaryExpression(Context *context, GrammarTree *node)
+{
+    // postfix_expression
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+    else if (node->num == 2)
+    {
+        // INC_OP unary_expression
+        // DEC_OP unary_expression
+        // unary_operator cast_expression
+        // SIZEOF unary_expression
+    }
+	// SIZEOF '(' type_name ')
+    else  // error
+    {
+    }
+}
+
+void genPostfixExpression(Context *context, GrammarTree *node)
+{
+    // primary_expression
+    if (node->num == 1)
+    {
+        GENERATE(0);
+	}
+    else if (node->num == 3)
+    {
+	    // postfix_expression '(' ')'
+        if (isType(node->child[1], '('))
+        {
+            GENERATE(0);
+            // TODO: 无参数函数调用
+        }
+        // postfix_expression '.' IDENTIFIER
+	    // postfix_expression PTR_OP IDENTIFIER
+        else  // error
+        {
+        }
+    }
+    else if (node->num == 4)
+    {
+	    // postfix_expression '[' expression ']'
+	    // postfix_expression '(' argument_expression_list ')'
+    }
+    // 暂时不支持++ --
+    else  // error
+    {
+    }
+}
+
+void genPrimaryExpression(Context *context, GrammarTree *node)
+{
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+    // '(' expression ')'
+    else if (node->num == 3)
+    {
+        GENERATE(1);
+    }
+    else // error
+    {
+    }
+    
+}
+
+void genLeafIdentifier(Context *context, GrammarTree *node)
+{
+    // context->currentIdentifier = ;
+}
+
+void genLeafStringLiteral(Context *context, GrammarTree *node)
+{
+    STRING(node->content);
+}
+
+void genLeafOperator(Context *context, GrammarTree *node)
+{
+    context->operation = node->type;
+}
+
+void genPlaceHolder()
+{
+    // 什么也不干
 }

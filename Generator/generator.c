@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "generator.h"
-#include "context.h"
 
 static void (*generator[3000])(Context *context, GrammarTree *node);
 
