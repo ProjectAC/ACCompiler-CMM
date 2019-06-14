@@ -80,7 +80,7 @@ void genAssignmentExpression(Context *context, GrammarTree *node)
         }
         else
         {
-            sprintf(instr, "%s %%eax, %s", context->operation, context->dest);
+            sprintf(instr, "%s %%eax, %s", context->operation);
             APPEND(instr);
         }
     }
@@ -133,12 +133,12 @@ void genBinaryOperation(Context *context, GrammarTree *node)
         GENERATE(0);                                // 左参数
         VALUE();
         GENERATE(1);                                // 获取运算符，写入context
-        if (instructionString[context->operation][0] == 0)  // error
+        if (instructionString[INT][context->operation][0] == 0)  // error
         {
         }
         else
         {
-            sprintf(instr, "%s %%edx, %%eax", context->operation, context->dest);
+            sprintf(instr, "%s %%edx, %%eax", instructionString[INT][context->operation]);
             APPEND(instr);
         }
     }
@@ -149,7 +149,16 @@ void genBinaryOperation(Context *context, GrammarTree *node)
 
 void genCastExpression(Context *context, GrammarTree *node)
 {
-
+    // unary_expression
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// '(' type_name ')' cast_expression
+    else  // error
+    {
+    }
+    
 }
 
 void genUnaryExpression(Context *context, GrammarTree *node)
