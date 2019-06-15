@@ -8,7 +8,7 @@ int main()
     return 0;
 }
 
-PROGRAM <1> [1] 
+PROGRAM <1> [1] //<行数>[孩子节点个数]
 | TRANSLATION_UNIT <1> [1] 
 | | EXTERNAL_DECLARATION <1> [1] 
 | | | FUNCTION_DEFINITION <1> [3] 
@@ -31,7 +31,7 @@ PROGRAM <1> [1]
 | | | | | | | INIT_DECLARATOR_LIST <3> [3] 
 | | | | | | | | INIT_DECLARATOR_LIST <3> [3] 
 | | | | | | | | | INIT_DECLARATOR_LIST <3> [1] 
-| | | | | | | | | | INIT_DECLARATOR <3> [3] 
+| | | | | | | | | | INIT_DECLARATOR <3> [3] //a=1
 | | | | | | | | | | | DECLARATOR <3> [1] 
 | | | | | | | | | | | | DIRECT_DECLARATOR <3> [1] 
 | | | | | | | | | | | | | TERMINAL a [0] 
@@ -55,7 +55,7 @@ PROGRAM <1> [1]
 | | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <3> [1] 
 | | | | | | | | | | | | | | | | | | | | | | | | | | | | TERMINAL 1 [0] 
 | | | | | | | | | TERMINAL , [0] 
-| | | | | | | | | INIT_DECLARATOR <3> [3] 
+| | | | | | | | | INIT_DECLARATOR <3> [3]//b=2 
 | | | | | | | | | | DECLARATOR <3> [1] 
 | | | | | | | | | | | DIRECT_DECLARATOR <3> [1] 
 | | | | | | | | | | | | TERMINAL b [0] 
@@ -79,7 +79,7 @@ PROGRAM <1> [1]
 | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <3> [1] 
 | | | | | | | | | | | | | | | | | | | | | | | | | | | TERMINAL 2 [0] 
 | | | | | | | | TERMINAL , [0] 
-| | | | | | | | INIT_DECLARATOR <3> [1] 
+| | | | | | | | INIT_DECLARATOR <3> [1]// c
 | | | | | | | | | DECLARATOR <3> [1] 
 | | | | | | | | | | DIRECT_DECLARATOR <3> [1] 
 | | | | | | | | | | | TERMINAL c [0] 
@@ -90,37 +90,37 @@ PROGRAM <1> [1]
 | | | | | | | | STATEMENT <5> [1] 
 | | | | | | | | | EXPRESSION_STATEMENT <5> [2] 
 | | | | | | | | | | EXPRESSION <5> [1] 
-| | | | | | | | | | | ASSIGNMENT_EXPRESSION <5> [3] 
-| | | | | | | | | | | | UNARY_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] 
+| | | | | | | | | | | ASSIGNMENT_EXPRESSION <5> [3] //done
+| | | | | | | | | | | | UNARY_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] //done 
 | | | | | | | | | | | | | | | TERMINAL c [0] 
-| | | | | | | | | | | | ASSIGNMENT_OPERATOR <5> [1] 
+| | | | | | | | | | | | ASSIGNMENT_OPERATOR <5> [1] //done
 | | | | | | | | | | | | | TERMINAL = [0] 
-| | | | | | | | | | | | ASSIGNMENT_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | CONDITIONAL_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | LOGICAL_OR_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | LOGICAL_AND_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | INCLUSIVE_OR_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | EXCLUSIVE_OR_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | AND_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | EQUALITY_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | RELATIONAL_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | SHIFT_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | ADDITIVE_EXPRESSION <5> [3] 
-| | | | | | | | | | | | | | | | | | | | | | | ADDITIVE_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | MULTIPLICATIVE_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | CAST_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | | UNARY_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] 
+| | | | | | | | | | | | ASSIGNMENT_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | CONDITIONAL_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | LOGICAL_OR_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | LOGICAL_AND_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | INCLUSIVE_OR_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | EXCLUSIVE_OR_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | AND_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | EQUALITY_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | RELATIONAL_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | | | | | | | | SHIFT_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | ADDITIVE_EXPRESSION <5> [3] //done 
+| | | | | | | | | | | | | | | | | | | | | | | ADDITIVE_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | | | | | | | | | | | MULTIPLICATIVE_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | | | | CAST_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | | | | | | | | | | | | | UNARY_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] //done 
 | | | | | | | | | | | | | | | | | | | | | | | | | | | | | TERMINAL a [0] 
 | | | | | | | | | | | | | | | | | | | | | | | TERMINAL + [0] 
-| | | | | | | | | | | | | | | | | | | | | | | MULTIPLICATIVE_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | CAST_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | UNARY_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] 
-| | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] 
+| | | | | | | | | | | | | | | | | | | | | | | MULTIPLICATIVE_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | | | CAST_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | | | | | | | | | | | | UNARY_EXPRESSION <5> [1] //done 
+| | | | | | | | | | | | | | | | | | | | | | | | | | POSTFIX_EXPRESSION <5> [1] //done
+| | | | | | | | | | | | | | | | | | | | | | | | | | | PRIMARY_EXPRESSION <5> [1] //done 
 | | | | | | | | | | | | | | | | | | | | | | | | | | | | TERMINAL b [0] 
 | | | | | | | | | | TERMINAL ; [0] 
 | | | | | | | STATEMENT <6> [1] 

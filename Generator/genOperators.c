@@ -161,7 +161,7 @@ void genCastExpression(Context *context, GrammarTree *node)
     
 }
 
-void genUnaryExpression(Context *context, GrammarTree *node)
+void genUnaryExpression(Context *context, GrammarTree *node)//我写的
 {
     // postfix_expression
     if (node->num == 1)
@@ -171,17 +171,48 @@ void genUnaryExpression(Context *context, GrammarTree *node)
     else if (node->num == 2)
     {
         // INC_OP unary_expression
+        if(isType(node->child[0], L_OP_INC))
+        {
+            GENERATE(1);
+            VALUE();
+            APPEND("addl $1, %%eax");//不靠谱
+            
+        }
         // DEC_OP unary_expression
-        // unary_operator cast_expression
+        if(isType(node->child[0], L_OP_DEC))
+        {
+            GENERATE(1);
+            VALUE();
+            APPEND("subl $1, %%eax");//不靠谱
+            
+        }
         // SIZEOF unary_expression
+        if(isType(node->child[0],L_SIZEOF))
+        {
+            APPEND("movl $4, %%eax");//不靠谱
+        }
+        // unary_operator cast_expression
+        else
+        {
+            GENARATOR(1);
+            GENARATOR(0);
+            
+        }
+       
+        
     }
 	// SIZEOF '(' type_name ')
+    else if(node->num == 4)
+    {
+        if(isType(node->child[1],'('))  
+        APPEND("movl $4, %%eax");//不靠谱
+    }
     else  // error
     {
     }
 }
 
-void genPostfixExpression(Context *context, GrammarTree *node)
+void genPostfixExpression(Context *context, GrammarTree *node)//我该写但是没写
 {
     // primary_expression
     if (node->num == 1)
@@ -196,7 +227,7 @@ void genPostfixExpression(Context *context, GrammarTree *node)
             GENERATE(0);
             // TODO: 无参数函数调用
         }
-        // postfix_expression '.' IDENTIFIER
+        // postfix_expression '.' IDENTIFIER//identifier 看不懂 LLLD是啥
 	    // postfix_expression PTR_OP IDENTIFIER
         else  // error
         {
@@ -229,6 +260,186 @@ void genPrimaryExpression(Context *context, GrammarTree *node)
     }
     
 }
+
+
+void genAssignmentOperator(Context *context, GrammarTree *node)//该我写，都是终结符得是不用写
+{
+    if(node->num == 1)
+        GENARATOR(0);
+}
+
+void genLogicalOrExpression(Context *context, GrammarTree *node)//我写的
+{
+    //logical_and_expression
+    if(node->num == 1)
+    GENARATOR(0);
+   //logical_or_expression OR_OP logical_and_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+    else//error
+    {
+
+    }
+}
+
+void genLogicalAndExpression(Context *context, GrammarTree *node)//我写的
+{
+    //logical_or_expression
+    if(node->num == 1)
+    GENARATOR(0);
+   // logical_and_expression AND_OP inclusive_or_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("andl, %%eax, %%edx");
+    }
+   else //error
+   {
+
+   }
+}
+
+
+void genInclusiveOrExpression(Context *context, GrammarTree *node)//我写的
+{
+    //exclusive_or_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    //inclusive_or_expression '|' exclusive_or_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+}
+
+void genExclusiveOrExpression(Context *context, GrammarTree *node)//我写的
+{
+    //and_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    //exclusive_or_expression '^' and_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+}
+
+void genAndExpression(Context *context, GrammarTree *node)//我写得
+{
+    // equality_expression
+    if(node->num == 1)
+    GENERATE(0);
+    //and_expression '&' equality_expression
+    else if (node ->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("andl, %%eax, %%edx");
+    }
+
+   else //error
+   {
+
+   }
+}
+      
+void genEqualityExpression(Context *context, GrammarTree *node)//?
+{
+    //equality_expression:
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+
+void genRelationalExpression(Context *context, GrammarTree *node)//?
+{
+    
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+void genShiftExpression(Context *context, GrammarTree *node)//?
+{
+    
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+void genAdditiveExpression(Context *context, GrammarTree *node)
+{
+    //multiplicative_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    else if(node->num == 3)
+    {
+        //additive_expression '+' multiplicative_expression
+        if(isType(node->child[1],'+'))
+        {
+            GENARATOR(0);
+            VALUE();
+            APPEND("movl %%eax, %%edx");
+            GENARATOR(2);
+            VALUE();
+            APPEND("addl %%edx, %%eax");
+        }
+       //additive_expression '-' multiplicative_expression
+        if(isType(node->child[1],'-'))
+        {
+            GENARATOR(0);
+            VALUE();
+            APPEND("movl %%eax, %%edx");
+            GENARATOR(2);
+            VALUE();
+            APPEND("subq %%edx, %%eax");
+        }
+       
+    
+    }
+    else//error
+    {
+
+    }
+}
+
+void genMultiplicativeExpression(Context *context, GrammarTree *node)
+{
+    if(node->num == 1)
+    GENERATE(0);
+}
+
+void genCastExpression(Context *context, GrammarTree *node)
+{
+    if(node->num == 1)
+    GENERATE(0);
+}
+
+     
+
+
 
 void genLeafIdentifier(Context *context, GrammarTree *node)
 {
