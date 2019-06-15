@@ -6,6 +6,12 @@ static char instructionString[2][3000][10];
 
 void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *node))
 {
+	generator[PROGRAM] = genParserStart;
+	generator[TRANSLATION_UNIT] = genTranslationUnit;
+	generator[EXTERNAL_DECLARATION] = genExtermalDeclaration;
+	generator[FUNCTION_DEFINITION] = genFunctionDefinition;
+	generator[TYPE_SPECIFIER] = genTypeSpecifier;
+	generator[COMPOUND_STATEMENT] = genCompoundStatement;
     generator[ASSIGNMENT_EXPRESSION] = genAssignmentExpression;
     generator[CONDITIONAL_EXPRESSION] = genConditionalExpression;
     generator[LOGICAL_OR_EXPRESSION] = genBinaryOperation;
@@ -13,8 +19,8 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[INCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
     generator[EXCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
     generator[AND_EXPRESSION] = genBinaryOperation;
-    //generator[EQUALITY_EXPRESSION] = genEqualityExpression;
-    //generator[RELATIONAL_EXPRESSION] = genRelationalExpression;
+    generator[EQUALITY_EXPRESSION] = genEqualityExpression;
+    generator[RELATIONAL_EXPRESSION] = genRelationalExpression;
     generator[SHIFT_EXPRESSION] = genBinaryOperation;
     generator[ADDITIVE_EXPRESSION] = genBinaryOperation;
     generator[MULTIPLICATIVE_EXPRESSION] = genBinaryOperation;
@@ -22,6 +28,19 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[UNARY_EXPRESSION] = genUnaryExpression;
     generator[POSTFIX_EXPRESSION] = genPostfixExpression;
     generator[PRIMARY_EXPRESSION] = genPrimaryExpression;
+    generator[ASSIGNMENT_OPERATOR] =genAssignmentOperator;
+    generator[DECLARATION_LIST] = genDeclarationList;
+    generator[DECLARATION_SPECIFIERS] = genDeclarationSpecifiers;
+    generator[INIT_DECLARATOR_LIST] =genInitDeclaratorList;
+    generator[INIT_DECLARATOR] = genInitDeclarator;
+    generator[DECLARATOR] = genDeclarator;
+    generator[DIRECT_DECLARATOR]=genDirectDeclarator;
+    generator[INITIALIZER] = genInitializer;
+    generator[STATEMENT_LIST] = genStatementList;
+    generator[STATEMENT] = genStatement;
+    generator[EXPRESSION_STATEMENT] =genExpressionStatement;
+    generator[EXPRESSION]=genExpression;
+
 }
 
 void initInstructionString()
@@ -57,6 +76,69 @@ void initInstructionString()
     strcpy(instructionString[FLOAT]['/'], "divss");
 }
 
+void genParserStart(Context *context, GrammarTree *node)
+{
+	GENERATE(0);
+}
+
+void genTranslationUnit(Context *context, GrammarTree *node)
+{
+	if (node->num == 1)
+	{
+		GENERATE(0);
+	}
+	else if (node->num == 2)
+	{
+		GENERATE(0);
+		GENERATE(1);
+	}
+}
+void genExtermalDeclaration(Context *context, GrammarTree *node)
+{
+	GENERATE(0);
+}
+
+void genFunctionDefinition(Context *context, GrammarTree *node)
+{
+	if (node->num == 4)
+	{
+		GENERATE(0);
+		GENERATE(1);
+		GENERATE(2);
+		GENERATE(4);
+	}
+	else if (node->num == 3)
+	{
+		GENERATE(0);
+		GENERATE(1);
+		GENERATE(2);
+	}
+}
+
+void  genCompoundStatement(Context *context, GrammarTree *node)
+{
+	// '{' '}'
+	if (node->num == 2)
+	{
+	}
+	else if (node->num == 3)
+	{
+		// '{' statement_list '}'
+		// '{' declaration_list '}'
+		GENERATE(1);
+	}
+	// '{' declaration_list statement_list '}'
+	else if (node->num == 4)
+	{
+		GENERATE(1);
+		GENERATE(2);
+	}
+}
+
+void genTypeSpecifier(Context *context, GrammarTree *node)
+{
+	setBaseType(context, L_INT);
+}
 void genDeclarationList(Context *context, GrammarTree *node)
 {
     // declaration
@@ -253,9 +335,9 @@ void genAssignmentExpression(Context *context, GrammarTree *node)
 	// unary_expression assignment_operator assignment_expression
     else if (node->num == 3)
     {
-        GENERATE(2);            // Ëé∑ÂèñÂè≥ÂÄº
-        GENERATE(1);            // Ëé∑ÂèñËøêÁÆóÁ¨¶ÔºåÂÜôÂÖ•context
-        GENERATE(0);            // Ëé∑ÂèñÁõÆÊ†áÔºåÂÜôÂÖ•context
+        GENERATE(2);            // ªÒ»°”“÷µ
+        GENERATE(1);            // ªÒ»°‘ÀÀ„∑˚£¨–¥»Îcontext
+        GENERATE(0);            // ªÒ»°ƒø±Í£¨–¥»Îcontext
         if (strcmp(instructionString[INT][context->operation], ""))  // error
         {
         }
@@ -280,16 +362,16 @@ void genConditionalExpression(Context *context, GrammarTree *node)
     // logical_or_expression '?' expression ':' conditional_expression
     else if (node->num == 5)
     {
-        GENERATE(0);                                    // Âà§Êñ≠Êù°‰ª∂
-        APPEND("cmpl %eax, $0");                        // ÊØîËæÉÊòØ‰∏çÊòØ0
-        sprintf(instr, "je %d_false\n", node->id);      // Â¶ÇÊûúÊòØ0Â∞±Ë∑≥ËΩ¨Âà∞ÂÜíÂè∑
+        GENERATE(0);                                    // ≈–∂œÃıº˛
+        APPEND("cmpl %eax, $0");                        // ±»Ωœ «≤ª «0
+        sprintf(instr, "je %d_false\n", node->id);      // »Áπ˚ «0æÕÃ¯◊™µΩ√∞∫≈
         APPEND(instr);
-        GENERATE(2);                                    // Âê¶ÂàôÁªßÁª≠ÊâßË°åÔºàÁªìÊûú‰Ωç‰∫éeaxÔºâ
-        sprintf(instr, "jmp %d_end\n", node->id);       // Âπ∂Ë∑≥ËΩ¨Âà∞ËØ≠Âè•ÁªìÊùüÂêé
+        GENERATE(2);                                    // ∑Ò‘ÚºÃ–¯÷¥––£®Ω·π˚Œª”⁄eax£©
+        sprintf(instr, "jmp %d_end\n", node->id);       // ≤¢Ã¯◊™µΩ”Ôæ‰Ω· ¯∫Û
         APPEND(instr);
         sprintf(instr, "%d_false", node->id);           // false
         LABEL(instr);
-        GENERATE(4);                                    // ÂÜíÂè∑Âêé
+        GENERATE(4);                                    // √∞∫≈∫Û
         sprintf(instr, "%d_end", node->id);             // end
         LABEL(instr);
     }
@@ -308,12 +390,12 @@ void genBinaryOperation(Context *context, GrammarTree *node)
     // additive_expression BINARY multiplicative_expression
     else if (node->num == 3)
     {
-        GENERATE(2);                                // Âè≥ÂèÇÊï∞
+        GENERATE(2);                                // ”“≤Œ ˝
         VALUE();
-        APPEND("movl %%eax, %%edx");                // ÊöÇÂ≠òÂú®edx
-        GENERATE(0);                                // Â∑¶ÂèÇÊï∞
+        APPEND("movl %%eax, %%edx");                // ‘›¥Ê‘⁄edx
+        GENERATE(0);                                // ◊Û≤Œ ˝
         VALUE();
-        GENERATE(1);                                // Ëé∑ÂèñËøêÁÆóÁ¨¶ÔºåÂÜôÂÖ•context
+        GENERATE(1);                                // ªÒ»°‘ÀÀ„∑˚£¨–¥»Îcontext
         if (instructionString[INT][context->operation][0] == 0)  // error
         {
         }
@@ -342,7 +424,7 @@ void genCastExpression(Context *context, GrammarTree *node)
     
 }
 
-void genUnaryExpression(Context *context, GrammarTree *node)
+void genUnaryExpression(Context *context, GrammarTree *node)//Œ“–¥µƒ
 {
     // postfix_expression
     if (node->num == 1)
@@ -352,17 +434,48 @@ void genUnaryExpression(Context *context, GrammarTree *node)
     else if (node->num == 2)
     {
         // INC_OP unary_expression
+        if(isType(node->child[0], L_OP_INC))
+        {
+            GENERATE(1);
+            VALUE();
+            APPEND("addl $1, %%eax");//≤ªøø∆◊
+            
+        }
         // DEC_OP unary_expression
-        // unary_operator cast_expression
+        if(isType(node->child[0], L_OP_DEC))
+        {
+            GENERATE(1);
+            VALUE();
+            APPEND("subl $1, %%eax");//≤ªøø∆◊
+            
+        }
         // SIZEOF unary_expression
+        if(isType(node->child[0],L_SIZEOF))
+        {
+            APPEND("movl $4, %%eax");//≤ªøø∆◊
+        }
+        // unary_operator cast_expression
+        else
+        {
+            GENARATOR(1);
+            GENARATOR(0);
+            
+        }
+       
+        
     }
 	// SIZEOF '(' type_name ')
+    else if(node->num == 4)
+    {
+        if(isType(node->child[1],'('))  
+        APPEND("movl $4, %%eax");//≤ªøø∆◊
+    }
     else  // error
     {
     }
 }
 
-void genPostfixExpression(Context *context, GrammarTree *node)
+void genPostfixExpression(Context *context, GrammarTree *node)//Œ“∏√–¥µ´ «√ª–¥
 {
     // primary_expression
     if (node->num == 1)
@@ -375,9 +488,9 @@ void genPostfixExpression(Context *context, GrammarTree *node)
         if (isType(node->child[1], '('))
         {
             GENERATE(0);
-            // TODO: Êó†ÂèÇÊï∞ÂáΩÊï∞Ë∞ÉÁî®
+            // TODO: Œﬁ≤Œ ˝∫Ø ˝µ˜”√
         }
-        // postfix_expression '.' IDENTIFIER
+        // postfix_expression '.' IDENTIFIER//identifier ø¥≤ª∂Æ LLLD «…∂
 	    // postfix_expression PTR_OP IDENTIFIER
         else  // error
         {
@@ -388,7 +501,7 @@ void genPostfixExpression(Context *context, GrammarTree *node)
 	    // postfix_expression '[' expression ']'
 	    // postfix_expression '(' argument_expression_list ')'
     }
-    // ÊöÇÊó∂‰∏çÊîØÊåÅ++ --
+    // ‘› ±≤ª÷ß≥÷++ --
     else  // error
     {
     }
@@ -411,6 +524,186 @@ void genPrimaryExpression(Context *context, GrammarTree *node)
     
 }
 
+
+void genAssignmentOperator(Context *context, GrammarTree *node)//∏√Œ“–¥£¨∂º «÷’Ω·∑˚µ√ «≤ª”√–¥
+{
+    if(node->num == 1)
+        GENARATOR(0);
+}
+
+void genLogicalOrExpression(Context *context, GrammarTree *node)//Œ“–¥µƒ
+{
+    //logical_and_expression
+    if(node->num == 1)
+    GENARATOR(0);
+   //logical_or_expression OR_OP logical_and_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+    else//error
+    {
+
+    }
+}
+
+void genLogicalAndExpression(Context *context, GrammarTree *node)//Œ“–¥µƒ
+{
+    //logical_or_expression
+    if(node->num == 1)
+    GENARATOR(0);
+   // logical_and_expression AND_OP inclusive_or_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("andl, %%eax, %%edx");
+    }
+   else //error
+   {
+
+   }
+}
+
+
+void genInclusiveOrExpression(Context *context, GrammarTree *node)//Œ“–¥µƒ
+{
+    //exclusive_or_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    //inclusive_or_expression '|' exclusive_or_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+}
+
+void genExclusiveOrExpression(Context *context, GrammarTree *node)//Œ“–¥µƒ
+{
+    //and_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    //exclusive_or_expression '^' and_expression
+    else if(node->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("orl, %%eax, %%edx");
+    }
+}
+
+void genAndExpression(Context *context, GrammarTree *node)//Œ“–¥µ√
+{
+    // equality_expression
+    if(node->num == 1)
+    GENERATE(0);
+    //and_expression '&' equality_expression
+    else if (node ->num == 3)
+    {
+      GENARATOR(0);
+      VALUE();
+      APPEND("movl %%eax, %%edx");  
+      GENARATOR(2);
+      VALUE();
+      APPEND("andl, %%eax, %%edx");
+    }
+
+   else //error
+   {
+
+   }
+}
+      
+void genEqualityExpression(Context *context, GrammarTree *node)//?
+{
+    //equality_expression:
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+
+void genRelationalExpression(Context *context, GrammarTree *node)//?
+{
+    
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+void genShiftExpression(Context *context, GrammarTree *node)//?
+{
+    
+   if(node->num == 1)
+      GENERATE(0);
+} 
+
+void genAdditiveExpression(Context *context, GrammarTree *node)
+{
+    //multiplicative_expression
+    if(node->num == 1)
+    GENARATOR(0);
+    else if(node->num == 3)
+    {
+        //additive_expression '+' multiplicative_expression
+        if(isType(node->child[1],'+'))
+        {
+            GENARATOR(0);
+            VALUE();
+            APPEND("movl %%eax, %%edx");
+            GENARATOR(2);
+            VALUE();
+            APPEND("addl %%edx, %%eax");
+        }
+       //additive_expression '-' multiplicative_expression
+        if(isType(node->child[1],'-'))
+        {
+            GENARATOR(0);
+            VALUE();
+            APPEND("movl %%eax, %%edx");
+            GENARATOR(2);
+            VALUE();
+            APPEND("subq %%edx, %%eax");
+        }
+       
+    
+    }
+    else//error
+    {
+
+    }
+}
+
+void genMultiplicativeExpression(Context *context, GrammarTree *node)
+{
+    if(node->num == 1)
+    GENERATE(0);
+}
+
+void genCastExpression(Context *context, GrammarTree *node)
+{
+    if(node->num == 1)
+    GENERATE(0);
+}
+
+     
+
+
+
 void genLeafIdentifier(Context *context, GrammarTree *node)
 {
     // context->currentIdentifier = ;
@@ -428,5 +721,5 @@ void genLeafOperator(Context *context, GrammarTree *node)
 
 void genPlaceHolder()
 {
-    // ‰ªÄ‰πà‰πü‰∏çÂπ≤
+    //  ≤√¥“≤≤ª∏…
 }
