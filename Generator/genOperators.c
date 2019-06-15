@@ -13,8 +13,8 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[INCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
     generator[EXCLUSIVE_OR_EXPRESSION] = genBinaryOperation;
     generator[AND_EXPRESSION] = genBinaryOperation;
-    //generator[EQUALITY_EXPRESSION] = genEqualityExpression;
-    //generator[RELATIONAL_EXPRESSION] = genRelationalExpression;
+    generator[EQUALITY_EXPRESSION] = genEqualityExpression;
+    generator[RELATIONAL_EXPRESSION] = genRelationalExpression;
     generator[SHIFT_EXPRESSION] = genBinaryOperation;
     generator[ADDITIVE_EXPRESSION] = genBinaryOperation;
     generator[MULTIPLICATIVE_EXPRESSION] = genBinaryOperation;
@@ -22,6 +22,19 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[UNARY_EXPRESSION] = genUnaryExpression;
     generator[POSTFIX_EXPRESSION] = genPostfixExpression;
     generator[PRIMARY_EXPRESSION] = genPrimaryExpression;
+    generator[ASSIGNMENT_OPERATOR] =genAssignmentOperator;
+    generator[DECLARATION_LIST] = genDeclarationList;
+    generator[DECLARATION_SPECIFIERS] = genDeclarationSpecifiers;
+    generator[INIT_DECLARATOR_LIST] =genInitDeclaratorList;
+    generator[INIT_DECLARATOR] = genInitDeclarator;
+    generator[DECLARATOR] = genDeclarator;
+    generator[DIRECT_DECLARATOR]=genDirectDeclarator;
+    generator[INITIALIZER] = genInitializer;
+    generator[STATEMENT_LIST] = genStatementList;
+    generator[STATEMENT] = genStatement;
+    generator[EXPRESSION_STATEMENT] =genExpressionStatement;
+    generator[EXPRESSION]=genExpression;
+
 }
 
 void initInstructionString()
