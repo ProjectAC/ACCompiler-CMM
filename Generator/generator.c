@@ -20,3 +20,8 @@ void compile(FILE *fp, GrammarTree *root)
     Context *context = buildContext(fp);
     generate(context, root);
 }
+
+int isType(GrammarTree *node, NodeType type)
+{
+    return node->type == type;
+}
