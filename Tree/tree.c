@@ -91,6 +91,7 @@ void eval(GrammarTree *node, int level)
         {
             for (int i = 0; i < level; i++)
                 printf("| ");
+            printf("(%d) ", node->id);
             if(node->type < L_MAX)
             {
                 printf("TERMINAL ");
