@@ -7,6 +7,7 @@
 #define GENERATE(x) generate(context, node->child[x])
 #define APPEND(x) append(context, x, _INSTRUCTION)
 #define LABEL(x) append(context, x, _LABEL)
+#define STRING(x) 
 
 #include "../Tree/tree.h"
 #include "context.h"

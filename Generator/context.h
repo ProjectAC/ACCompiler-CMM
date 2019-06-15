@@ -24,7 +24,7 @@ typedef struct __Context
     FILE *file;
     ValueType *typeRegs[100];
     ValueType *baseType;
-    IdentifierInfo currentIdentifier;
+    IdentifierInfo *currentIdentifier, *symbolList;
     NodeType operation;
     int sp;
 } Context;
@@ -32,5 +32,7 @@ typedef struct __Context
 void setBaseType(Context *ctx, int baseType);
 void appendType(ValueType *valueType, int baseType, unsigned int arrayLength, int isPointer);
 void setIdentifier(Context *ctx, char *name, int isLabel, ValueType *valueType);
+void unsetIdentifier(Context *ctx, char *name);
+void getIdentifier(Context *ctx, char *name);
 
 #endif

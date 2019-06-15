@@ -7,8 +7,8 @@
 extern char *yytext;
 extern int yylineno;
 
-#define INT 1
-#define FLOAT 2
+#define CMD_INT 1
+#define CMD_FLOAT 2
 
 typedef enum __NodeType {
     L_MIN = 1000,

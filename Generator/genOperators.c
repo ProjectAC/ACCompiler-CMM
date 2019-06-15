@@ -72,7 +72,7 @@ void genDeclarationList(Context *context, GrammarTree *node)
     }
 }
 
-void genDeclarationSpecifiers(Context *context, GrammarTree *node)
+void genDeclaration(Context *context, GrammarTree *node)
 {
     // declaration_specifiers ';'
     if (node->num == 2)
@@ -88,6 +88,34 @@ void genDeclarationSpecifiers(Context *context, GrammarTree *node)
     else  // error
     {
     }
+}
+
+void genDeclaration(Context *context, GrammarTree *node)
+{
+    if (node->num == 1)
+    {
+        // storage_class_specifier
+        // type_specifier
+        // type_qualifier
+        if (isType(node->child[0], TYPE_SPECIFIER))
+        {
+            GENERATE(0);
+        }
+    }
+    else if (node->num == 2)
+    {
+        // storage_class_specifier declaration_specifiers
+        // type_specifier declaration_specifiers
+        // type_qualifier declaration_specifiers
+    }
+    else  // error
+    {
+    }
+}
+
+void genTypeSpecifier(Context *context)
+{
+    setBaseType(context, INT);
 }
 
 void genInitDeclaratorList(Context *context, GrammarTree *node)
@@ -117,7 +145,7 @@ void genInitDeclarator(Context *context, GrammarTree *node)
     {
         GENERATE(2);
         GENERATE(0);
-        sprintf(instr, "movl %%eax, %s", context->currentIdentifier.address);
+        sprintf(instr, "movl %%eax, %s", context->currentIdentifier->address);
         APPEND(instr);
     }
     else  // error
@@ -413,7 +441,7 @@ void genPrimaryExpression(Context *context, GrammarTree *node)
 
 void genLeafIdentifier(Context *context, GrammarTree *node)
 {
-    // context->currentIdentifier = ;
+    getIdentifier(context, node->content);
 }
 
 void genLeafStringLiteral(Context *context, GrammarTree *node)
