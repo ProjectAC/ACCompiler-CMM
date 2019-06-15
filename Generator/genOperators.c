@@ -22,7 +22,10 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[UNARY_EXPRESSION] = genUnaryExpression;
     generator[POSTFIX_EXPRESSION] = genPostfixExpression;
     generator[PRIMARY_EXPRESSION] = genPrimaryExpression;
-    generator[ASSIGNMENT_OPERATOR] =genAssignmentOperator;
+    generator[ASSIGNMENT_OPERATOR] = genAssignmentOperator;
+
+    //-----------------------------------------------------------------
+
     generator[DECLARATION_LIST] = genDeclarationList;
     generator[DECLARATION_SPECIFIERS] = genDeclarationSpecifiers;
     generator[INIT_DECLARATOR_LIST] =genInitDeclaratorList;
@@ -32,42 +35,42 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[INITIALIZER] = genInitializer;
     generator[STATEMENT_LIST] = genStatementList;
     generator[STATEMENT] = genStatement;
-    generator[EXPRESSION_STATEMENT] =genExpressionStatement;
-    generator[EXPRESSION]=genExpression;
+    generator[EXPRESSION_STATEMENT] = genExpressionStatement;
+    generator[EXPRESSION] = genExpression;
 
 }
 
 void initInstructionString()
 {
-    strcpy(instructionString[INT][L_ASSIGN_RIGHT], "sarl");
-    strcpy(instructionString[INT][L_ASSIGN_LEFT], "sall");
-    strcpy(instructionString[INT][L_ASSIGN_ADD], "addl");
-    strcpy(instructionString[INT][L_ASSIGN_SUB], "subl");
-    strcpy(instructionString[INT][L_ASSIGN_MUL], "imull");
-    strcpy(instructionString[INT][L_ASSIGN_DIV], "idivl");
-    strcpy(instructionString[INT][L_ASSIGN_AND], "andl");
-    strcpy(instructionString[INT][L_ASSIGN_XOR], "xorl");
-    strcpy(instructionString[INT][L_ASSIGN_OR], "orl");
-    strcpy(instructionString[INT][L_OP_RIGHT], "sarl");
-    strcpy(instructionString[INT][L_OP_LEFT], "sall");
-    strcpy(instructionString[INT]['='], "movl");
-    strcpy(instructionString[INT]['&'], "andl");
-    strcpy(instructionString[INT]['|'], "orl");
-    strcpy(instructionString[INT]['-'], "subl");
-    strcpy(instructionString[INT]['+'], "addl");
-    strcpy(instructionString[INT]['*'], "imull");
-    strcpy(instructionString[INT]['/'], "idivl");
-    strcpy(instructionString[INT]['^'], "xorl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_RIGHT], "sarl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_LEFT], "sall");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_ADD], "addl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_SUB], "subl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_MUL], "imull");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_DIV], "idivl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_AND], "andl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_XOR], "xorl");
+    strcpy(instructionString[CMD_INT][L_ASSIGN_OR], "orl");
+    strcpy(instructionString[CMD_INT][L_OP_RIGHT], "sarl");
+    strcpy(instructionString[CMD_INT][L_OP_LEFT], "sall");
+    strcpy(instructionString[CMD_INT]['='], "movl");
+    strcpy(instructionString[CMD_INT]['&'], "andl");
+    strcpy(instructionString[CMD_INT]['|'], "orl");
+    strcpy(instructionString[CMD_INT]['-'], "subl");
+    strcpy(instructionString[CMD_INT]['+'], "addl");
+    strcpy(instructionString[CMD_INT]['*'], "imull");
+    strcpy(instructionString[CMD_INT]['/'], "idivl");
+    strcpy(instructionString[CMD_INT]['^'], "xorl");
 
-    strcpy(instructionString[FLOAT][L_ASSIGN_ADD], "addss");
-    strcpy(instructionString[FLOAT][L_ASSIGN_SUB], "subss");
-    strcpy(instructionString[FLOAT][L_ASSIGN_MUL], "mulss");
-    strcpy(instructionString[FLOAT][L_ASSIGN_DIV], "divss");
-    strcpy(instructionString[FLOAT]['='], "movss");
-    strcpy(instructionString[FLOAT]['-'], "subss");
-    strcpy(instructionString[FLOAT]['+'], "addss");
-    strcpy(instructionString[FLOAT]['*'], "mulss");
-    strcpy(instructionString[FLOAT]['/'], "divss");
+    strcpy(instructionString[CMD_FLOAT][L_ASSIGN_ADD], "addss");
+    strcpy(instructionString[CMD_FLOAT][L_ASSIGN_SUB], "subss");
+    strcpy(instructionString[CMD_FLOAT][L_ASSIGN_MUL], "mulss");
+    strcpy(instructionString[CMD_FLOAT][L_ASSIGN_DIV], "divss");
+    strcpy(instructionString[CMD_FLOAT]['='], "movss");
+    strcpy(instructionString[CMD_FLOAT]['-'], "subss");
+    strcpy(instructionString[CMD_FLOAT]['+'], "addss");
+    strcpy(instructionString[CMD_FLOAT]['*'], "mulss");
+    strcpy(instructionString[CMD_FLOAT]['/'], "divss");
 }
 
 void genDeclarationList(Context *context, GrammarTree *node)
@@ -103,7 +106,7 @@ void genDeclaration(Context *context, GrammarTree *node)
     }
 }
 
-void genDeclaration(Context *context, GrammarTree *node)
+void genDeclarationSpecifiers(Context *context, GrammarTree *node)
 {
     if (node->num == 1)
     {
@@ -128,7 +131,7 @@ void genDeclaration(Context *context, GrammarTree *node)
 
 void genTypeSpecifier(Context *context)
 {
-    setBaseType(context, INT);
+    setBaseType(context, L_INT);
 }
 
 void genInitDeclaratorList(Context *context, GrammarTree *node)
@@ -297,7 +300,7 @@ void genAssignmentExpression(Context *context, GrammarTree *node)
         GENERATE(2);            // 获取右值
         GENERATE(1);            // 获取运算符，写入context
         GENERATE(0);            // 获取目标，写入context
-        if (strcmp(instructionString[INT][context->operation], ""))  // error
+        if (strcmp(instructionString[CMD_INT][context->operation], ""))  // error
         {
         }
         else
@@ -355,12 +358,12 @@ void genBinaryOperation(Context *context, GrammarTree *node)
         GENERATE(0);                                // 左参数
         VALUE();
         GENERATE(1);                                // 获取运算符，写入context
-        if (instructionString[INT][context->operation][0] == 0)  // error
+        if (instructionString[CMD_INT][context->operation][0] == 0)  // error
         {
         }
         else
         {
-            sprintf(instr, "%s %%edx, %%eax", instructionString[INT][context->operation]);
+            sprintf(instr, "%s %%edx, %%eax", instructionString[CMD_INT][context->operation]);
             APPEND(instr);
         }
     }
