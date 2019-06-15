@@ -57,9 +57,190 @@ void initInstructionString()
     strcpy(instructionString[FLOAT]['/'], "divss");
 }
 
+void genDeclarationList(Context *context, GrammarTree *node)
+{
+    // declaration
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// declaration_list declaration
+    else if (node->num == 2)
+    {
+        GENERATE(0);
+        GENERATE(1);
+    }
+}
+
+void genDeclarationSpecifiers(Context *context, GrammarTree *node)
+{
+    // declaration_specifiers ';'
+    if (node->num == 2)
+    {
+        GENERATE(0);
+    }
+	// declaration_specifiers init_declarator_list ';'
+    else if (node->num == 3)
+    {
+        GENERATE(0);
+        GENERATE(1);
+    }
+    else  // error
+    {
+    }
+}
+
+void genInitDeclaratorList(Context *context, GrammarTree *node)
+{
+    // init_declarator
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// init_declarator_list ',' init_declarator
+    else if (node->num == 3)
+    {
+        GENERATE(0);
+        GENERATE(1);
+    }
+}
+
+void genInitDeclarator(Context *context, GrammarTree *node)
+{
+    // declarator
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// declarator '=' initializer
+    else if (node->num == 3)
+    {
+        GENERATE(2);
+        GENERATE(0);
+        sprintf(instr, "movl %%eax, %s", context->currentIdentifier.address);
+        APPEND(instr);
+    }
+    else  // error
+    {
+    }
+}
+
+void genDeclarator(Context *context, GrammarTree *node)
+{
+    // direct_declarator
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+    // pointer direct_declarator
+    else if(node->num == 2)
+    {
+        GENERATE(1);
+    }
+	else  // error
+    {
+        
+    }
+}
+
+void genDirectDeclarator(Context *context, GrammarTree *node)
+{
+    // IDENTIFIER
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+    else if (node->num == 3)
+    {
+        // '(' declarator ')'
+        // direct_declarator '[' ']'
+        // direct_declarator '(' ')'
+    }
+    else if (node->num == 4)
+    {
+        // direct_declarator '(' parameter_type_list ')'
+        // direct_declarator '(' identifier_list ')'
+        // direct_declarator '[' constant_expression ']'
+    }
+    else  // error
+    {
+    }
+}
+
+void genInitializer(Context *context, GrammarTree *node)
+{
+    // assignment_expression
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	//'{' initializer_list '}'
+	// '{' initializer_list ',' '}'
+    if (node->num == 3 || node->num == 4)
+    {
+
+    }
+    else  // error
+    {
+    }
+}
+
+void genStatementList(Context *context, GrammarTree *node)
+{
+    // statement
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// statement_list statement
+    else if (node->num == 2)
+    {
+        GENERATE(0);
+        GENERATE(1);
+    }
+}
+
+void genStatement(Context *context, GrammarTree *node)
+{
+    // labeled_statement
+	// compound_statement
+	// expression_statement
+	// selection_statement
+	// iteration_statement
+	// jump_statement
+	GENERATE(0);
+}
+
+void genExpressionStatement(Context *context, GrammarTree *node)
+{
+    // ;
+    if (node->num == 1)
+    {
+        // do nothing
+    }
+    // expression ';'
+    else if (node->num == 2)
+    {
+	    GENERATE(0);
+    }
+}
+
 void genExpression(Context *context, GrammarTree *node)
 {
-
+    // assignment_expression
+    if (node->num == 1)
+    {
+        GENERATE(0);
+    }
+	// expression ',' assignment_expression
+    else if (node->num == 3)
+    {
+        GENERATE(0);
+        GENERATE(2);
+    }
+    else  // 
+    {
+    }
 }
 
 void genAssignmentExpression(Context *context, GrammarTree *node)
