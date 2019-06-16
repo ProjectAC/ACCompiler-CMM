@@ -33,7 +33,11 @@ struct __Context
     int operation;
     int mode;
     int sp;
+    int argCnt;
+    int argCntCaller;
+    std::string functionName;
 
+    std::vector<std::string> functions;
     std::vector<std::string> instructions;
 };
 typedef struct __Context Context;

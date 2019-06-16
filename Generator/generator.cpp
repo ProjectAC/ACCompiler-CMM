@@ -7,6 +7,15 @@
 
 static void (*generator[3000])(Context *context, GrammarTree *node);
 
+char argReg[6][100] = {
+    "%edi",
+    "%esi",
+    "%edx",
+    "%ecx",
+    "%r8d",
+    "%r9d"
+};
+
 void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *node));
 void initGenControl(void (*generator[3000])(Context *context, GrammarTree *node));
 

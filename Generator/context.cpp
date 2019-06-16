@@ -23,7 +23,7 @@ void append(Context *context, string str, int rowType)
     }
     else if (rowType == _INSTRUCTION)
     {
-        context->instructions.push_back(str);
+        context->instructions.push_back("    " + str);
     }
 }
 
@@ -57,15 +57,16 @@ void getIdentifier(Context *ctx, std::string name)
     ctx->currentIdentifier = &ctx->symbolList[name];
 }
 
-void getValue(Context *ctx)
+void getValue(Context *context)
 {
-    IdentifierInfo *p = ctx->currentIdentifier;
-    if (p->isLabel)
+    IdentifierInfo *p = context->currentIdentifier;
+    if (p)
     {
-
-    }
-    else
-    {
-        sprintf(instr, "mov %d(%%ebp), %%eax", p->address);
+        if (!(p->isLabel))
+        {
+            sprintf(instr, "mov %d(%%rbp), %%eax", p->address);
+            APPEND(instr);
+        }
+        context->currentIdentifier = NULL;
     }
 }

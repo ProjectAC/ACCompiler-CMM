@@ -6,6 +6,12 @@ CPPFLAGS = -O2
 CMM: Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/context.o Debug/generator.o Debug/genOperators.o Debug/genControl.o Debug/main.o
 	$(CPP) -o Debug/cmm Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/context.o Debug/generator.o Debug/genOperators.o Debug/genControl.o Debug/main.o -lfl -lm
 
+Test:
+	Debug/cmm ./Code/TestA+B/ours.c ./Code/TestA+B/ours.s
+	gcc ./Code/TestA+B/ours.c -S -o ./Code/TestA+B/ours-gcc.s
+	gcc ./Code/TestA+B/main.c -S -o ./Code/TestA+B/main.s
+	gcc ./Code/TestA+B/ours.s ./Code/TestA+B/main.s -o ./Code/main
+
 Debug/main.o:
 	$(CC) -o Debug/main.o -c Test/main.c
 

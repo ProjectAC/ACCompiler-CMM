@@ -20,7 +20,7 @@ void genParameterList(Context *context, GrammarTree *node)
 {
     context->mode = 1;
     // parameter_declaration
-    if (node->num == 0)
+    if (node->num == 1)
     {
         GENERATE(0);
     }
@@ -48,7 +48,10 @@ void genParameterDeclaration(Context *context, GrammarTree *node)
     {
         GENERATE(0);
         GENERATE(1);
+
         context->currentIdentifier->address = (context->sp -= 4);
+        sprintf(instr, "movl %s, %d(%%rbp)", argReg[context->argCnt++], context->currentIdentifier->address);
+        APPEND(instr);
     }
 }
 
@@ -77,16 +80,21 @@ void genExtermalDeclaration(Context *context, GrammarTree *node)
 
 void genFunctionDefinition(Context *context, GrammarTree *node)
 {
+    // declaration_specifiers declarator declaration_list compound_statement
     GENERATE(0);
     GENERATE(1);
-    
-    LABEL(context->currentIdentifier->name);
+    context->currentIdentifier = NULL;
 
     GENERATE(2);
     if (node->num == 4)
     {
         GENERATE(3);
     }
+
+    sprintf(instr, "%s_function_ending", context->functionName.c_str());
+    LABEL(instr);
+	APPEND("leave");
+    APPEND("ret");
 }
 
 void genCompoundStatement(Context *context, GrammarTree *node)
@@ -187,7 +195,7 @@ void genInitDeclarator(Context *context, GrammarTree *node)
     {
         GENERATE(2);
         GENERATE(0);
-        sprintf(instr, "movl %%eax, %d(%%ebp)", context->currentIdentifier->address);
+        sprintf(instr, "movl %%eax, %d(%%rbp)", context->currentIdentifier->address);
         APPEND(instr);
     }
     else  // error
@@ -230,7 +238,24 @@ void genDirectDeclarator(Context *context, GrammarTree *node)
     {
         // direct_declarator '(' parameter_type_list ')'
         GENERATE(0);
+
+        context->currentIdentifier->isLabel = 1;
+        context->functions.push_back(context->currentIdentifier->name);
+        context->functionName = context->currentIdentifier->name;
+        context->sp = 0;
+        context->argCnt = 0;
+        
+        sprintf(instr, ".globl %s", context->currentIdentifier->name.c_str());
+        APPEND(instr);
+        LABEL(context->currentIdentifier->name);
+        APPEND("pushq %rbp");
+        APPEND("movq %rsp, %rbp");
+
         GENERATE(2);
+
+        sprintf(instr, "subq $%d, %%rsp", (context->argCnt + 5) * 4);
+        APPEND(instr);
+
         // direct_declarator '(' identifier_list ')'
         // direct_declarator '[' constant_expression ']'
     }
@@ -247,7 +272,9 @@ void genJumpStatement(Context *context, GrammarTree *node)
     // RETURN ';'
     // RETURN expression ';'
     GENERATE(1);
-    APPEND("ret");
+    
+    sprintf(instr, "jmp %s_function_ending", context->functionName.c_str());
+    APPEND(instr);
 }
 
 void initGenControl(void (*generator[3000])(Context *context, GrammarTree *node))

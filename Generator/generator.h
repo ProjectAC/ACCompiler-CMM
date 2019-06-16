@@ -17,5 +17,6 @@
 extern "C" void compile(FILE *fp, GrammarTree *root);
 void generate(Context *context, GrammarTree *node);
 int isType(GrammarTree *node, int type);
+extern char argReg[6][100];
 
 #endif
