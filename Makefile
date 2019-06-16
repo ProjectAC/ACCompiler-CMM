@@ -1,5 +1,25 @@
 CC = gcc
+CPP = g++
 CFLAGS = -O2
+CPPFLAGS = -O2
+
+CMM: Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/context.o Debug/generator.o Debug/genOperators.o Debug/genControl.o Debug/main.o
+	$(CPP) -o Debug/cmm Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/context.o Debug/generator.o Debug/genOperators.o Debug/genControl.o Debug/main.o -lfl -lm
+
+Debug/main.o:
+	$(CC) -o Debug/main.o -c Test/main.c
+
+Debug/context.o:
+	$(CPP) -o Debug/context.o -c Generator/context.cpp
+
+Debug/generator.o: 
+	$(CPP) -o Debug/generator.o -c Generator/generator.cpp
+
+Debug/genOperators.o: 
+	$(CPP) -o Debug/genOperators.o -c Generator/genOperators.cpp
+
+Debug/genControl.o: 
+	$(CPP) -o Debug/genControl.o -c Generator/genControl.cpp
 
 ansicParser: Debug/essentials.o Debug/ansicParser.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/testParser.o
 	$(CC) -o Debug/parser Debug/essentials.o Debug/ansicLex.o Debug/treeNodeTypeStrings.o Debug/tree.o Debug/ansicParser.o Debug/testParser.o -lfl -lm

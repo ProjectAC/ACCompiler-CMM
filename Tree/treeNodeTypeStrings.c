@@ -136,7 +136,7 @@ void initTreeNodeTypeStrings()
     treeNodeTypeStrings[L_CONSTANT_INT] = newString("L_CONSTANT_INT");
     treeNodeTypeStrings[L_CONSTANT_DOUBLE] = newString("L_CONSTANT_DOUBLE");
     treeNodeTypeStrings[L_STRING_LITERAL] = newString("L_STRING_LITERAL");
-    treeNodeTypeStrings[L_ASSIGN_RIGHT_] = newString("L_ASSIGN_RIGHT_");
+    treeNodeTypeStrings[L_ASSIGN_RIGHT] = newString("L_ASSIGN_RIGHT");
     treeNodeTypeStrings[L_ASSIGN_LEFT] = newString("L_ASSIGN_LEFT");
     treeNodeTypeStrings[L_ASSIGN_ADD] = newString("L_ASSIGN_ADD");
     treeNodeTypeStrings[L_ASSIGN_SUB] = newString("L_ASSIGN_SUB");

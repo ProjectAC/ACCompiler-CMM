@@ -1241,7 +1241,7 @@ YY_RULE_SETUP
 case 51:
 YY_RULE_SETUP
 #line 82 "Parser/ansicLex.l"
-{ count(); yylval.gt = createLeaf(L_ASSIGN_RIGHT_,yylineno);	return(RIGHT_ASSIGN); }
+{ count(); yylval.gt = createLeaf(L_ASSIGN_RIGHT,yylineno);	return(RIGHT_ASSIGN); }
 	YY_BREAK
 case 52:
 YY_RULE_SETUP

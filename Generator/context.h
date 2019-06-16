@@ -2,37 +2,48 @@
 #define _CONTEXT_H_
 
 #include <stdio.h>
+#include <map>
+#include <vector>
+#include <string>
 
-typedef struct __ValueType
+struct __ValueType
 {
-    int basicType;
+    int baseType;
     unsigned int arrayLength;
     int isPointer;
-    struct __ValueType *next;
-} ValueType;
+};
+typedef struct __ValueType ValueType;
 
-typedef struct __IdentifierInfo
+struct __IdentifierInfo
 {
-    char *name;
+    std::string name;
     int isLabel;
-    unsigned int address;
-    ValueType *type;
-} IdentifierInfo;
+    int address;
+    std::vector<ValueType> type;
+};
+typedef struct __IdentifierInfo IdentifierInfo;
 
-typedef struct __Context
+struct __Context
 {
     FILE *file;
-    ValueType *typeRegs[100];
-    ValueType *baseType;
-    IdentifierInfo *currentIdentifier, *symbolList;
-    NodeType operation;
+    std::vector<ValueType> typeRegs[100];
+    ValueType baseType;
+    IdentifierInfo *currentIdentifier;
+    std::map<std::string, IdentifierInfo> symbolList;
+    int operation;
     int sp;
-} Context;
 
+    std::vector<std::string> instructions;
+};
+typedef struct __Context Context;
+
+Context *buildContext(FILE *fp);
 void setBaseType(Context *ctx, int baseType);
-void appendType(ValueType *valueType, int baseType, unsigned int arrayLength, int isPointer);
-void setIdentifier(Context *ctx, char *name, int isLabel, ValueType *valueType);
-void unsetIdentifier(Context *ctx, char *name);
-void getIdentifier(Context *ctx, char *name);
+void appendType(std::vector<ValueType> &valueType, int baseType, unsigned int arrayLength, int isPointer);
+void setIdentifier(Context *ctx, std::string name, int isLabel, std::vector<ValueType> valueType);
+void unsetIdentifier(Context *ctx, std::string name);
+void getIdentifier(Context *ctx, std::string name);
+void getValue(Context *ctx);
+void append(Context *context, std::string str, int rowType);
 
 #endif
