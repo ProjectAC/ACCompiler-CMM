@@ -18,6 +18,7 @@ void genParameterTypeList(Context *context, GrammarTree *node)
 
 void genParameterList(Context *context, GrammarTree *node)
 {
+    context->mode = 1;
     // parameter_declaration
     if (node->num == 0)
     {
@@ -47,6 +48,7 @@ void genParameterDeclaration(Context *context, GrammarTree *node)
     {
         GENERATE(0);
         GENERATE(1);
+        context->currentIdentifier->address = (context->sp -= 4);
     }
 }
 
@@ -102,7 +104,9 @@ void genCompoundStatement(Context *context, GrammarTree *node)
     // '{' declaration_list statement_list '}'
     else if (node->num == 4)
     {
+        context->mode = 2;
         GENERATE(1);
+        context->mode = 0;
         GENERATE(2);
     }
 }
@@ -225,6 +229,8 @@ void genDirectDeclarator(Context *context, GrammarTree *node)
     else if (node->num == 4)
     {
         // direct_declarator '(' parameter_type_list ')'
+        GENERATE(0);
+        GENERATE(2);
         // direct_declarator '(' identifier_list ')'
         // direct_declarator '[' constant_expression ']'
     }
@@ -258,5 +264,9 @@ void initGenControl(void (*generator[3000])(Context *context, GrammarTree *node)
     generator[INIT_DECLARATOR_LIST] =genInitDeclaratorList;
     generator[INIT_DECLARATOR] = genInitDeclarator;
     generator[DECLARATOR] = genDeclarator;
-    generator[DIRECT_DECLARATOR]=genDirectDeclarator;
+    generator[DIRECT_DECLARATOR] = genDirectDeclarator;
+    generator[PARAMETER_TYPE_LIST] = genParameterTypeList;
+    generator[PARAMETER_LIST] = genParameterList;
+    generator[PARAMETER_DECLARATION] = genParameterDeclaration;
+    generator[JUMP_STATEMENT] = genJumpStatement;
 }

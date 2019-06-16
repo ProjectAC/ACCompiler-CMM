@@ -37,6 +37,11 @@ void appendType(vector<ValueType> &valueType, int baseType, unsigned int arrayLe
     valueType.push_back({baseType, arrayLength, isPointer});
 }
 
+void appendType(std::vector<ValueType> &valueType, ValueType type)
+{
+    valueType.push_back(type);
+}
+
 void setIdentifier(Context *ctx, std::string name, int isLabel, std::vector<ValueType> valueType)
 {
     ctx->symbolList[name] = IdentifierInfo({name, isLabel});

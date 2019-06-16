@@ -13,6 +13,8 @@ int main(int argc,char* argv[])
 	yyin = fopen(argv[1], "r");
 	yyparse();
 	fclose(yyin);
+    
+    printf("\n\n");
 
     fout = fopen(argv[2], "w");
     initTreeNodeTypeStrings();

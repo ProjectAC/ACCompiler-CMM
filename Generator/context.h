@@ -31,6 +31,7 @@ struct __Context
     IdentifierInfo *currentIdentifier;
     std::map<std::string, IdentifierInfo> symbolList;
     int operation;
+    int mode;
     int sp;
 
     std::vector<std::string> instructions;
@@ -40,6 +41,7 @@ typedef struct __Context Context;
 Context *buildContext(FILE *fp);
 void setBaseType(Context *ctx, int baseType);
 void appendType(std::vector<ValueType> &valueType, int baseType, unsigned int arrayLength, int isPointer);
+void appendType(std::vector<ValueType> &valueType, ValueType type);
 void setIdentifier(Context *ctx, std::string name, int isLabel, std::vector<ValueType> valueType);
 void unsetIdentifier(Context *ctx, std::string name);
 void getIdentifier(Context *ctx, std::string name);

@@ -372,7 +372,22 @@ void genRelationalExpression(Context *context, GrammarTree *node)//?
 
 void genLeafIdentifier(Context *context, GrammarTree *node)
 {
-    // context->currentIdentifier = ;
+    char *name = (char*)node->content;
+    // 参数 or 定义
+    if (context->mode)
+    {
+        context->symbolList[name] = IdentifierInfo();
+        getIdentifier(context, name);
+
+        context->currentIdentifier->name = name;
+        context->currentIdentifier->isLabel = 0;
+        appendType(context->currentIdentifier->type, context->baseType);
+    }
+    // 声明
+    else
+    {
+        getIdentifier(context, name);
+    }
 }
 
 void genLeafStringLiteral(Context *context, GrammarTree *node)
@@ -414,4 +429,7 @@ void initGenOperators(void (*generator[3000])(Context *context, GrammarTree *nod
     generator[STATEMENT] = genStatement;
     generator[EXPRESSION_STATEMENT] =genExpressionStatement;
     generator[EXPRESSION]=genExpression;
+
+    generator[L_IDENTIFIER] = genLeafIdentifier;
+    generator['+'] = genLeafOperator;
 }
